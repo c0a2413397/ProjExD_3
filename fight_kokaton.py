@@ -168,6 +168,7 @@ def main():
     bombs = [Bomb((255, 0, 0), 10) for _ in range(NUM_OF_BOMBS)]
     score = Score()
     beam = None  # ゲーム初期化時にはビームは存在しない
+    beams = []
     clock = pg.time.Clock()
     tmr = 0
     while True:
@@ -175,13 +176,12 @@ def main():
             if event.type == pg.QUIT:
                 return
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                # スペースキー押下でBeamクラスのインスタンス生成
-                beam = Beam(bird)            
+                beams.append(Beam(bird))  # 新しいビームを追加
         screen.blit(bg_img, [0, 0])
 
-        for b, bomb in enumerate(bombs):
+
+        for bomb in bombs:
             if bird.rct.colliderect(bomb.rct):
-                # ゲームオーバー時に，こうかとん画像を切り替え，1秒間表示させる
                 bird.change_img(8, screen)
                 font = pg.font.Font(None, 80)
                 txt = font.render("GAME OVER", True, (255, 0, 0))
@@ -189,28 +189,42 @@ def main():
                 pg.display.update()
                 time.sleep(1)
                 return
-        
-        for b, bomb in enumerate(bombs):
-            if beam is not None:
+
+        beams_to_delete = []
+        bombs_to_delete = []
+
+        for i, beam in enumerate(beams):
+            for j, bomb in enumerate(bombs):
                 if beam.rct.colliderect(bomb.rct):
-                    # 爆弾とビームが接触したら，両者とも消滅させる
                     score.score += 1
-                    beam = None
-                    bombs[b] = None
+                    beams_to_delete.append(i)
+                    bombs_to_delete.append(j)
                     bird.change_img(6, screen)
-                    pg.display.update()
-        bombs = [bomb for bomb in bombs if bomb is not None] 
+        for i in sorted(set(beams_to_delete), reverse=True):
+            del beams[i]
+        for j in sorted(set(bombs_to_delete), reverse=True):
+            del bombs[j]
+
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
+
+
         score.update(screen)
-        if beam is not None: 
-            beam.update(screen)
+
+        new_beams = []
+        for beam in beams:
+            if check_bound(beam.rct) == (True, True):
+                beam.update(screen)
+                new_beams.append(beam)  # 画面内のビームだけ残す
+        beams = new_beams
+
         for bomb in bombs:
             bomb.update(screen)
+
         pg.display.update()
-        tmr += 1
         clock.tick(50)
+        tmr += 1
 
 
 if __name__ == "__main__":
