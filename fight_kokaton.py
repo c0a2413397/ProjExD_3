@@ -172,7 +172,9 @@ def main():
                 if beam.rct.colliderect(bomb.rct):
                     # 爆弾とビームが接触したら，両者とも消滅させる
                     beam = None
-                    bomb = None 
+                    bomb = None
+                    bird.change_img(6, screen)
+                    pg.display.update() 
 
         key_lst = pg.key.get_pressed()
         bird.update(key_lst, screen)
