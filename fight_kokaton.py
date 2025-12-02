@@ -147,16 +147,18 @@ class Score:
     スコアに関するクラス
     """
     def __init__(self):
+        """
+        スコア表示用のフォントと初期スコアを設定する
+        """
         self.font = pg.font.SysFont("hgp創英角ﾎﾟｯﾌﾟ体", 30)
         self.score = 0
 
-
-
     def update(self, screen: pg.Surface):
+        """
+        スコアを画面に表示する
+        """
         self.img = self.font.render(f"スコア：{self.score}", 0, (0, 0, 225))
         screen.blit(self.img, [100, HEIGHT - 50])
-
-
 
 
 def main():
